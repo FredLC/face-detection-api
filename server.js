@@ -1,4 +1,5 @@
 const express = require('express');
+const bcrypt = require('bcrypt-nodejs');
 
 const app = express();
 
@@ -30,6 +31,20 @@ app.get('/', (req, res) => {
 });
 
 app.post('/signin', (req, res) => {
+  bcrypt.compare(
+    'joemarambi',
+    '$2a$10$1JQbsTRkVQQWLupEtVR6YObMn8DTuVb5gWrQ3XHJGsg4WvicuT3Li',
+    function(err, res) {
+      console.log('first guess', res);
+    }
+  );
+  bcrypt.compare(
+    'veggies',
+    '$2a$10$1JQbsTRkVQQWLupEtVR6YObMn8DTuVb5gWrQ3XHJGsg4WvicuT3Li',
+    function(err, res) {
+      console.log('second guess', res);
+    }
+  );
   if (
     req.body.email === database.users[0].email &&
     req.body.password === database.users[0].password
@@ -43,6 +58,14 @@ app.post('/signin', (req, res) => {
 app.post('/register', (req, res) => {
   const { name, email, password } = req.body;
   const id = database.users[database.users.length - 1].id + 1;
+
+  bcrypt.hash(password, null, null, function(err, hash) {
+    if (err) {
+      console.log(err);
+    }
+    console.log(hash);
+  });
+
   database.users.push({
     id: id,
     name: name,
