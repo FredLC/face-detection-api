@@ -20,9 +20,7 @@ const db = knex({
 
 db.select('*')
   .from('users')
-  .then((data) => {
-    console.log(data);
-  });
+  .then((data) => {});
 
 const app = express();
 
@@ -30,7 +28,7 @@ app.use(express.json());
 app.use(cors());
 
 app.get('/', (req, res) => {
-  res.send(database.users);
+  res.send('It is working!');
 });
 
 app.post('/signin', (req, res) => {
@@ -49,6 +47,10 @@ app.put('/image', (req, res) => {
   image.handleUpdateImage(req, res, db);
 });
 
-app.listen(3001, () => {
-  console.log('app running on port 3001');
+app.post('/imageurl', (req, res) => {
+  image.handleApiCall(req, res);
+});
+
+app.listen(process.env.PORT || 3001, () => {
+  console.log(`app running on port 3001`);
 });
