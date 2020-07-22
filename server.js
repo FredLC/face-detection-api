@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
 
-const postgres = knex({
+const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
@@ -13,8 +13,7 @@ const postgres = knex({
   },
 });
 
-postgres
-  .select('*')
+db.select('*')
   .from('users')
   .then((data) => {
     console.log(data);
@@ -77,23 +76,17 @@ app.post('/signin', (req, res) => {
 
 app.post('/register', (req, res) => {
   const { name, email, password } = req.body;
-  const id = database.users[database.users.length - 1].id + 1;
-
-  bcrypt.hash(password, null, null, function (err, hash) {
-    if (err) {
-      console.log(err);
-    }
-    console.log(hash);
-  });
-
-  database.users.push({
-    id: id,
-    name: name,
-    email: email,
-    entries: 0,
-    joined: new Date(),
-  });
-  res.json(database.users[database.users.length - 1]);
+  db('users')
+    .returning('*')
+    .insert({
+      email: email,
+      name: name,
+      joined: new Date(),
+    })
+    .then((user) => {
+      res.json(user[0]);
+    })
+    .catch((err) => res.status(400).json('unable to register'));
 });
 
 app.get('/profile/:id', (req, res) => {
