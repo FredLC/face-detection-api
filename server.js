@@ -1,6 +1,24 @@
 const express = require('express');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
+const knex = require('knex');
+
+const postgres = knex({
+  client: 'pg',
+  connection: {
+    host: '127.0.0.1',
+    user: 'postgres',
+    password: 'root',
+    database: 'smart-brain',
+  },
+});
+
+postgres
+  .select('*')
+  .from('users')
+  .then((data) => {
+    console.log(data);
+  });
 
 const app = express();
 
@@ -15,7 +33,7 @@ const database = {
       email: 'joe@test.com',
       password: 'football',
       entries: 0,
-      joined: new Date()
+      joined: new Date(),
     },
     {
       id: 2,
@@ -23,9 +41,9 @@ const database = {
       email: 'joanna@test.com',
       password: 'password',
       entries: 0,
-      joined: new Date()
-    }
-  ]
+      joined: new Date(),
+    },
+  ],
 };
 
 app.get('/', (req, res) => {
@@ -36,14 +54,14 @@ app.post('/signin', (req, res) => {
   bcrypt.compare(
     'joemarambi',
     '$2a$10$1JQbsTRkVQQWLupEtVR6YObMn8DTuVb5gWrQ3XHJGsg4WvicuT3Li',
-    function(err, res) {
+    function (err, res) {
       console.log('first guess', res);
     }
   );
   bcrypt.compare(
     'veggies',
     '$2a$10$1JQbsTRkVQQWLupEtVR6YObMn8DTuVb5gWrQ3XHJGsg4WvicuT3Li',
-    function(err, res) {
+    function (err, res) {
       console.log('second guess', res);
     }
   );
@@ -61,7 +79,7 @@ app.post('/register', (req, res) => {
   const { name, email, password } = req.body;
   const id = database.users[database.users.length - 1].id + 1;
 
-  bcrypt.hash(password, null, null, function(err, hash) {
+  bcrypt.hash(password, null, null, function (err, hash) {
     if (err) {
       console.log(err);
     }
@@ -73,14 +91,14 @@ app.post('/register', (req, res) => {
     name: name,
     email: email,
     entries: 0,
-    joined: new Date()
+    joined: new Date(),
   });
   res.json(database.users[database.users.length - 1]);
 });
 
 app.get('/profile/:id', (req, res) => {
   const { id } = req.params;
-  const user = database.users.filter(user => user.id === Number(id));
+  const user = database.users.filter((user) => user.id === Number(id));
   if (user) {
     return res.json(user);
   }
@@ -89,7 +107,7 @@ app.get('/profile/:id', (req, res) => {
 
 app.put('/image', (req, res) => {
   const { id } = req.body;
-  const user = database.users.filter(user => user.id === Number(id));
+  const user = database.users.filter((user) => user.id === Number(id));
   if (user) {
     user[0].entries++;
     return res.json(user[0].entries);
@@ -97,6 +115,6 @@ app.put('/image', (req, res) => {
   res.status(400).json('not found');
 });
 
-app.listen(3000, () => {
-  console.log('app running on port 3000');
+app.listen(3001, () => {
+  console.log('app running on port 3001');
 });
